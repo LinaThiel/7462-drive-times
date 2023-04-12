@@ -30,9 +30,9 @@ jobs:
                any::dplyr
                any::tidyr
                any::ggplot2
-               any::lubridate
+               any::tidyverse
                any::googleway
-               any::purrr
+               any::htmltools
                any::leaflet
                any::gepaf
                any::tidycensus
@@ -42,7 +42,7 @@ jobs:
                any::janitor
                any::stringr
                any::ggthemes
-               
+               any::sf
       - name: Render document
         uses: quarto-dev/quarto-actions/render@v2
         env:
