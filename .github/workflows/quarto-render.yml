@@ -41,6 +41,8 @@ jobs:
                any::osmdata
                any::janitor
                any::stringr
+               any:: ggthemes
+               
       - name: Render document
         uses: quarto-dev/quarto-actions/render@v2
         env:
