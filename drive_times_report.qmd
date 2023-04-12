@@ -7,15 +7,107 @@ format:
 editor: visual
 ---
 
+## Repeat of 1.3 from Homework 6
+
+## Set up
+```{r}
+library(ggthemes)
+library(tidycensus)
+library(tidyverse)
+library(ggmap)
+library(plotly)
+library(osmdata)
+library(janitor)
+library(leaflet)
+library(htmltools)
+library(sf)
+```
+
+
+## Load the API key
+
+```{r}
+api_key <- Sys.getenv("MAPS_API_KEY")
+```
+
+
+# Question 1.3
+
+```{r, include=FALSE}
+
+census_api_key(api_key)
+
+mn_span.df <- get_acs(
+  geography = "tract",
+  variables = "B06007_003", #Code for est total speak spanish
+  state     = "MN",
+  county    = "Hennepin",
+  year      = 2020,
+  geometry  = TRUE
+)
+
+mn_span_plot.df <- mn_span.df %>%
+  mutate(text = str_extract(NAME, ".*?(?=,)")) %>%
+  mutate(text_label = str_c("Spanish speakers in ", text, ":", "\n", estimate))
+
+
+span_plot.gg <- ggplot() +
+  geom_sf(data = mn_span_plot.df, 
+          aes(fill = estimate, text = text_label),
+           size = 0.1, color = "black") +
+  scale_fill_viridis_c(option = "plasma") +
+  theme_map()
+
+ggplotly(span_plot.gg, tooltip = "text",
+         height = 600,
+         width = 800) 
+
+mn.box           <- osmdata::getbb("minnesota")
+hennepin.box     <- osmdata::getbb("hennepin")
+
+
+hennepin.map <- get_map(
+  location = hennepin.box,
+  source   = "stamen",
+  maptype  = "terrain",
+  crop = TRUE
+)
+
+hennepin_base.gg <- ggmap(hennepin.map) +
+  theme_map()
+
+mn_span.ggmap <- hennepin_base.gg +
+  geom_sf(data = mn_span_plot.df,
+          aes(fill = estimate, text = estimate),
+          size = 0.1,
+          inherit.aes = FALSE) +
+  scale_fill_viridis_c(option = "plasma") +
+  theme_map() +
+  labs(fill = "Estimated Spanish Speakers", main = "Spanish speakers in Hennepin County, MN")
+
+
+```
+
+```{r}
+ggplotly(mn_span.ggmap, 
+         tooltip = "text",
+         height = 600, width = 800) %>%
+  style(hoveron ="fill") %>%
+  layout(legend = list(orientation = 'h'))
+
+```
+
+
+
 ```{r}
 #| echo: false
 #| message: false
 #| warning: false
+#| eval: false
 
 source("drive_times_setup.R")
 
-## Load the API key
-api_key <- Sys.getenv("MAPS_API_KEY")
+
 
 ## Set origin and destination
 ## Change these to your own selections!
@@ -23,18 +115,11 @@ ORIG <- "2221 University Ave SE, Minneapolis, MN"
 DEST <- "4940 France Ave S, Minneapolis, MN"
 ```
 
-## Route Information
 
-**Going From:** `r ORIG`
 
-**Going To:** `r DEST`
+```{r, eval=FALSE, echo=FALSE}
 
-**Earliest Departure:** `r Sys.time()`
 
-## Route Map
-
-```{r}
-#| echo: false
 library(leaflet)
 library(gepaf)
 
@@ -49,7 +134,9 @@ leaflet() %>% addProviderTiles(provider = "OpenStreetMap") %>%
 ## Driving Times
 
 ```{r}
-#| echo: false
+#| eval: false
+#| include: false
+
 
 ## Pick the times at which to generate travel times
 times_to_check <- Sys.time() + c(0, 15, 30, 45, 60)*60
