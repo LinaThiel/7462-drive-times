@@ -49,7 +49,7 @@ jobs:
           MAPS_API_KEY: ${{ secrets.MAPS_API_KEY }}
         with:
           to: html
-          path: Assignment 8.qmd
+          path: Assignment_8.qmd
       - name: Setup git config
         run: |
           git config user.name "GitHub Actions Bot"
